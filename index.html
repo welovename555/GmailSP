@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ติดตามการใช้งานอีเมล</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans Thai', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            padding: 16px;
+            color: #1a1a1a;
+        }
+
+        .container {
+            max-width: 414px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+            box-shadow: 0 32px 64px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 32px 24px 24px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(180deg); }
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .main-content {
+            padding: 24px;
+        }
+
+        .form-section {
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .email-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .email-input {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .email-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .email-suffix {
+            position: absolute;
+            right: 20px;
+            color: #9ca3af;
+            pointer-events: none;
+            font-size: 1rem;
+        }
+
+        .note-input {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            font-size: 1rem;
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .note-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .apps-section {
+            margin: 20px 0;
+        }
+
+        .apps-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .app-toggle {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 8px;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .app-toggle:hover {
+            border-color: #667eea;
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+        }
+
+        .app-toggle.unknown {
+            border-color: #d1d5db;
+        }
+
+        .app-toggle.used {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .app-toggle.unused {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .app-icon {
+            font-size: 1.5rem;
+            margin-bottom: 4px;
+        }
+
+        .app-name {
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.7rem;
+            text-align: center;
+        }
+
+        .add-button {
+            width: 100%;
+            padding: 18px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .add-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .add-button:hover::before {
+            left: 100%;
+        }
+
+        .add-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .add-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .table-section {
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(229, 231, 235, 0.5);
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .table-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .refresh-button {
+            padding: 8px 12px;
+            background: rgba(243, 244, 246, 0.8);
+            border: 1px solid #d1d5db;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.8rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .refresh-button:hover {
+            background: rgba(229, 231, 235, 0.8);
+            transform: translateY(-2px);
+        }
+
+        .table-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .email-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .email-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .email-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin: 0;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .card-action-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+        }
+
+        .edit-btn {
+            background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+            color: white;
+        }
+
+        .delete-btn {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+
+        .card-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-date {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+        }
+
+        .card-apps {
+            margin-bottom: 16px;
+        }
+
+        .card-apps-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 12px;
+        }
+
+        .card-apps-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .card-app-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(243, 244, 246, 0.5);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .card-app-item:hover {
+            background: rgba(229, 231, 235, 0.7);
+        }
+
+        .card-app-name {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .card-app-status {
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .card-app-status:hover {
+            transform: scale(1.3);
+        }
+
+        .card-note {
+            background: rgba(243, 244, 246, 0.5);
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 12px;
+        }
+
+        .card-note-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .card-note-content {
+            font-size: 0.85rem;
+            color: #6b7280;
+            line-height: 1.4;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            word-break: break-word;
+        }
+
+        .card-note-content:hover {
+            color: #374151;
+        }
+
+        .card-note-content.empty {
+            color: #d1d5db;
+            font-style: italic;
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid #e5e7eb;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 12px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 16px 20px;
+            border-radius: 16px;
+            margin: 16px 0;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert.error {
+            background: rgba(254, 226, 226, 0.9);
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .alert.success {
+            background: rgba(209, 250, 229, 0.9);
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6b7280;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            opacity: 0.7;
+        }
+
+        .empty-state h3 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: #374151;
+        }
+        
+        /* --- FIX: POPUP CENTERING (CSS) --- */
+        /* ทำให้ .modal เป็น flex container เพื่อจัดกลางเนื้อหา */
+        .modal {
+            display: none; /* ถูกควบคุมโดย JS */
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s;
+            
+            /* เพิ่มคุณสมบัติ Flexbox เพื่อจัดกลาง */
+            align-items: center;
+            justify-content: center;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* --- FIX: POPUP CENTERING (CSS) --- */
+        /* ลบ properties ที่ไม่จำเป็นออก เพื่อให้ Flexbox จัดกลางได้อย่างถูกต้อง */
+        .modal-content {
+            background: white;
+            /* margin: 50% auto; <-- REMOVED */
+            padding: 24px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 350px;
+            /* position: relative; <-- REMOVED */
+            /* top: 50%; <-- REMOVED */
+            /* transform: translateY(-50%); <-- REMOVED */
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        /* --- FIX: POPUP CENTERING (CSS) --- */
+        /* ปรับ animation ให้เข้ากับการจัดกลางแบบใหม่ */
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal h3 {
+            margin-bottom: 16px;
+            color: #1f2937;
+            font-size: 1.1rem;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .modal-button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-button.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .modal-button.secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .modal-button:hover {
+            transform: translateY(-2px);
+        }
+
+        /* iPhone 13 Pro Max specific optimizations */
+        @media (max-width: 428px) {
+            .container {
+                margin: 0;
+                border-radius: 0;
+                min-height: 100vh;
+            }
+            
+            .header {
+                padding-top: 60px; /* Account for notch */
+            }
+            
+            .app-name {
+                font-size: 0.65rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📧 ติดตามการใช้งานอีเมล</h1>
+            <p>จัดการและติดตามการใช้งานอีเมลในแอปต่างๆ</p>
+        </div>
+
+        <div class="main-content">
+            <div class="form-section">
+                <div class="form-group">
+                    <label for="emailInput">ที่อยู่อีเมล</label>
+                    <div class="email-input-wrapper">
+                        <input type="text" id="emailInput" class="email-input" placeholder="กรอกชื่อผู้ใช้">
+                        <span class="email-suffix">@gmail.com</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="noteInput">หมายเหตุ (ไม่บังคับ)</label>
+                    <textarea id="noteInput" class="note-input" placeholder="เพิ่มหมายเหตุเกี่ยวกับอีเมลนี้..."></textarea>
+                </div>
+
+                <div class="apps-section">
+                    <label>สถานะการใช้งานแอป</label>
+                    <div class="apps-grid">
+                        <div class="app-toggle unknown" data-app="shopee" data-status="unknown">
+                            <div class="app-icon">⚪</div>
+                            <div class="app-name">Shopee</div>
+                        </div>
+                        <div class="app-toggle unknown" data-app="gemini" data-status="unknown">
+                            <div class="app-icon">⚪</div>
+                            <div class="app-name">Gemini</div>
+                        </div>
+                        <div class="app-toggle unknown" data-app="chatgpt" data-status="unknown">
+                            <div class="app-icon">⚪</div>
+                            <div class="app-name">ChatGPT</div>
+                        </div>
+                        <div class="app-toggle unknown" data-app="tiktok" data-status="unknown">
+                            <div class="app-icon">⚪</div>
+                            <div class="app-name">TikTok</div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="add-button" id="addButton">เพิ่มอีเมล</button>
+                <div id="alertContainer"></div>
+            </div>
+
+            <div class="table-section">
+                <div class="table-header">
+                    <h2 class="table-title">รายการอีเมล</h2>
+                    <button class="refresh-button" id="refreshButton">🔄 รีเฟรช</button>
+                </div>
+                <div id="tableContainer">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        กำลังโหลดข้อมูล...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="noteModal" class="modal">
+        <div class="modal-content">
+            <h3>แก้ไขหมายเหตุ</h3>
+            <textarea id="modalNoteInput" class="note-input" placeholder="กรอกหมายเหตุ..."></textarea>
+            <div class="modal-buttons">
+                <button class="modal-button secondary" id="cancelNoteEdit">ยกเลิก</button>
+                <button class="modal-button primary" id="saveNoteEdit">บันทึก</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js@2';
+
+        // Supabase configuration
+        const supabaseUrl = 'https://tuyttwketzbewvqqqdum.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR1eXR0d2tldHpiZXd2cXFxZHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxODM4MDAsImV4cCI6MjA2ODc1OTgwMH0.3S9meIoh6ULCH2L4-R_wzud2rw70U8lJzs4gj9028fY';
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+        // DOM elements
+        const emailInput = document.getElementById('emailInput');
+        const noteInput = document.getElementById('noteInput');
+        const addButton = document.getElementById('addButton');
+        const refreshButton = document.getElementById('refreshButton');
+        const tableContainer = document.getElementById('tableContainer');
+        const alertContainer = document.getElementById('alertContainer');
+        const appToggles = document.querySelectorAll('.app-toggle');
+        const noteModal = document.getElementById('noteModal');
+        const modalNoteInput = document.getElementById('modalNoteInput');
+        const cancelNoteEdit = document.getElementById('cancelNoteEdit');
+        const saveNoteEdit = document.getElementById('saveNoteEdit');
+
+        // App status management
+        const statusCycle = ['unknown', 'used', 'unused'];
+        const statusIcons = {
+            unknown: '⚪',
+            used: '✅',
+            unused: '❌'
+        };
+
+        let currentAppStates = {
+            shopee: 'unknown',
+            gemini: 'unknown',
+            chatgpt: 'unknown',
+            tiktok: 'unknown'
+        };
+
+        let currentEditingId = null;
+
+        // Utility functions
+        function showAlert(message, type = 'error') {
+            const alertEl = document.createElement('div');
+            alertEl.className = `alert ${type}`;
+            alertEl.textContent = message;
+            alertContainer.innerHTML = '';
+            alertContainer.appendChild(alertEl);
+            
+            setTimeout(() => {
+                alertEl.remove();
+            }, 5000);
+        }
+
+        function updateAppToggle(element, status) {
+            element.className = `app-toggle ${status}`;
+            element.dataset.status = status;
+            element.querySelector('.app-icon').textContent = statusIcons[status];
+        }
+
+        function cycleAppStatus(app) {
+            const currentStatus = currentAppStates[app];
+            const currentIndex = statusCycle.indexOf(currentStatus);
+            const nextIndex = (currentIndex + 1) % statusCycle.length;
+            const nextStatus = statusCycle[nextIndex];
+            
+            currentAppStates[app] = nextStatus;
+            
+            const toggle = document.querySelector(`.form-section [data-app="${app}"]`);
+            updateAppToggle(toggle, nextStatus);
+        }
+
+        function resetForm() {
+            emailInput.value = '';
+            noteInput.value = '';
+            
+            Object.keys(currentAppStates).forEach(app => {
+                currentAppStates[app] = 'unknown';
+                const toggle = document.querySelector(`.form-section [data-app="${app}"]`);
+                updateAppToggle(toggle, 'unknown');
+            });
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('th-TH', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+        
+        function getStatusIcon(status) {
+            return statusIcons[status] || '⚪';
+        }
+
+        async function updateAppStatus(emailId, app, currentStatus) {
+            const currentIndex = statusCycle.indexOf(currentStatus);
+            const nextIndex = (currentIndex + 1) % statusCycle.length;
+            const nextStatus = statusCycle[nextIndex];
+            
+            try {
+                const { error } = await supabase
+                    .from('email_usage')
+                    .update({ [app]: nextStatus })
+                    .eq('id', emailId);
+                
+                if (error) throw error;
+                
+                await loadData();
+            } catch (error) {
+                showAlert(`ไม่สามารถอัปเดตสถานะ ${app}: ${error.message}`);
+            }
+        }
+
+        async function deleteEmail(emailId) {
+            if (confirm('คุณแน่ใจหรือไม่ที่จะลบข้อมูลอีเมลนี้?')) {
+                try {
+                    const { error } = await supabase
+                        .from('email_usage')
+                        .delete()
+                        .eq('id', emailId);
+                    
+                    if (error) throw error;
+                    
+                    showAlert('ลบข้อมูลอีเมลเรียบร้อยแล้ว!', 'success');
+                    await loadData();
+                } catch (error) {
+                    showAlert(`ไม่สามารถลบข้อมูล: ${error.message}`);
+                }
+            }
+        }
+
+        function openNoteModal(emailId, currentNote) {
+            currentEditingId = emailId;
+            modalNoteInput.value = currentNote || '';
+            /* --- FIX: POPUP CENTERING (JS) --- */
+            // เปลี่ยนจาก 'block' เป็น 'flex' เพื่อให้ CSS จัดกลางทำงาน
+            noteModal.style.display = 'flex';
+            modalNoteInput.focus();
+        }
+
+        function closeNoteModal() {
+            noteModal.style.display = 'none';
+            currentEditingId = null;
+            modalNoteInput.value = '';
+        }
+
+        async function saveNote() {
+            if (!currentEditingId) return;
+            
+            const newNote = modalNoteInput.value.trim();
+            
+            try {
+                const { error } = await supabase
+                    .from('email_usage')
+                    .update({ note: newNote || null })
+                    .eq('id', currentEditingId);
+                
+                if (error) throw error;
+                
+                showAlert('บันทึกหมายเหตุเรียบร้อยแล้ว!', 'success');
+                closeNoteModal();
+                await loadData();
+            } catch (error) {
+                showAlert(`ไม่สามารถบันทึกหมายเหตุ: ${error.message}`);
+            }
+        }
+        
+        function createEmailCard(row) {
+            const card = document.createElement('div');
+            card.className = 'email-card';
+            
+            card.innerHTML = `
+                <div class="card-header">
+                    <h3 class="email-title">${row.email.replace('@gmail.com', '')}</h3>
+                    <div class="card-actions">
+                        <button class="card-action-btn edit-btn" title="แก้ไขหมายเหตุ">📝</button>
+                        <button class="card-action-btn delete-btn" title="ลบอีเมล">🗑️</button>
+                    </div>
+                </div>
+                <div class="card-date">วันที่สมัคร: ${formatDate(row.created_at)}</div>
+                <div class="card-apps">
+                    <div class="card-apps-title">แอปที่ลงทะเบียน:</div>
+                    <div class="card-apps-grid">
+                        <div class="card-app-item">
+                            <span class="card-app-name">Shopee</span>
+                            <span class="card-app-status" data-app="shopee">${getStatusIcon(row.shopee)}</span>
+                        </div>
+                        <div class="card-app-item">
+                            <span class="card-app-name">Gemini</span>
+                            <span class="card-app-status" data-app="gemini">${getStatusIcon(row.gemini)}</span>
+                        </div>
+                        <div class="card-app-item">
+                            <span class="card-app-name">ChatGPT</span>
+                            <span class="card-app-status" data-app="chatgpt">${getStatusIcon(row.chatgpt)}</span>
+                        </div>
+                        <div class="card-app-item">
+                            <span class="card-app-name">TikTok</span>
+                            <span class="card-app-status" data-app="tiktok">${getStatusIcon(row.tiktok)}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-note">
+                    <div class="card-note-title">หมายเหตุ:</div>
+                    <div class="card-note-content ${row.note ? '' : 'empty'}">${row.note || 'ไม่มีหมายเหตุ'}</div>
+                </div>
+            `;
+
+            const noteContent = card.querySelector('.card-note-content');
+            const editBtn = card.querySelector('.edit-btn');
+            const deleteBtn = card.querySelector('.delete-btn');
+            
+            const noteText = row.note || '';
+            editBtn.addEventListener('click', () => openNoteModal(row.id, noteText));
+            noteContent.addEventListener('click', () => openNoteModal(row.id, noteText));
+            deleteBtn.addEventListener('click', () => deleteEmail(row.id));
+
+            card.querySelectorAll('.card-app-status').forEach(statusEl => {
+                const appName = statusEl.dataset.app;
+                if (appName) {
+                   statusEl.addEventListener('click', () => updateAppStatus(row.id, appName, row[appName]));
+                }
+            });
+
+            return card;
+        }
+
+        /* --- FIX: SCROLL POSITION --- */
+        // แก้ไขฟังก์ชัน loadData เพื่อจดจำตำแหน่ง scroll
+        async function loadData() {
+            // 1. บันทึกตำแหน่ง scroll ปัจจุบัน
+            const scrollPosition = window.scrollY;
+
+            try {
+                tableContainer.innerHTML = `<div class="loading"><div class="spinner"></div>กำลังโหลดข้อมูล...</div>`;
+
+                const { data, error } = await supabase
+                    .from('email_usage')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+                
+                tableContainer.innerHTML = ''; 
+
+                if (data.length === 0) {
+                    tableContainer.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📭</div>
+                            <h3>ยังไม่มีอีเมลที่ติดตาม</h3>
+                            <p>เพิ่มอีเมลแรกของคุณเพื่อเริ่มต้น!</p>
+                        </div>`;
+                    return;
+                }
+
+                const cardContainer = document.createElement('div');
+                cardContainer.className = 'table-container';
+                tableContainer.appendChild(cardContainer);
+
+                const dataToShow = data.length > 10 ? data.slice(0, 10) : data;
+                dataToShow.forEach(row => {
+                    const card = createEmailCard(row);
+                    cardContainer.appendChild(card);
+                });
+
+                if (data.length > 10) {
+                    const showMoreButton = document.createElement('button');
+                    showMoreButton.textContent = `แสดงเพิ่มเติม (${data.length - 10} รายการ)`;
+                    showMoreButton.className = 'add-button';
+                    showMoreButton.style.marginTop = '16px';
+                    showMoreButton.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                    
+                    showMoreButton.addEventListener('click', () => {
+                        const hiddenData = data.slice(10);
+                        hiddenData.forEach(row => {
+                            const card = createEmailCard(row);
+                            cardContainer.appendChild(card);
+                        });
+                        showMoreButton.remove();
+                    }, { once: true });
+
+                    tableContainer.appendChild(showMoreButton);
+                }
+
+            } catch (error) {
+                console.error('Error loading data:', error);
+                showAlert(`ไม่สามารถโหลดข้อมูล: ${error.message}`);
+                tableContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⚠️</div>
+                        <h3>ไม่สามารถโหลดข้อมูลได้</h3>
+                        <p>${error.message}</p>
+                    </div>`;
+            } finally {
+                // 2. เลื่อนกลับไปยังตำแหน่งที่บันทึกไว้ (จะทำงานเสมอไม่ว่า try หรือ catch)
+                window.scrollTo(0, scrollPosition);
+            }
+        }
+
+        async function addEmail() {
+            const username = emailInput.value.trim();
+            const note = noteInput.value.trim();
+
+            if (!username) {
+                showAlert('กรุณากรอกชื่อผู้ใช้อีเมล');
+                return;
+            }
+
+            if (username.includes('@')) {
+                showAlert('กรุณากรอกเฉพาะชื่อผู้ใช้ (ก่อน @gmail.com)');
+                return;
+            }
+
+            const email = `${username}@gmail.com`;
+
+            try {
+                addButton.disabled = true;
+                addButton.textContent = 'กำลังเพิ่ม...';
+
+                const { data, error } = await supabase
+                    .from('email_usage')
+                    .insert([{
+                        email: email,
+                        shopee: currentAppStates.shopee,
+                        gemini: currentAppStates.gemini,
+                        chatgpt: currentAppStates.chatgpt,
+                        tiktok: currentAppStates.tiktok,
+                        note: note || null
+                    }])
+                    .select();
+
+                if (error) throw error;
+
+                showAlert('เพิ่มอีเมลเรียบร้อยแล้ว!', 'success');
+                resetForm();
+                await loadData();
+            } catch (error) {
+                console.error('Error adding email:', error);
+                showAlert(`ไม่สามารถเพิ่มอีเมล: ${error.message}`);
+            } finally {
+                addButton.disabled = false;
+                addButton.textContent = 'เพิ่มอีเมล';
+            }
+        }
+
+        // --- Event listeners ---
+        appToggles.forEach(toggle => {
+            toggle.addEventListener('click', () => {
+                const app = toggle.dataset.app;
+                cycleAppStatus(app);
+            });
+        });
+
+        addButton.addEventListener('click', addEmail);
+        refreshButton.addEventListener('click', loadData);
+        cancelNoteEdit.addEventListener('click', closeNoteModal);
+        saveNoteEdit.addEventListener('click', saveNote);
+
+        emailInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addEmail();
+            }
+        });
+
+        modalNoteInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                e.preventDefault();
+                saveNote();
+            }
+        });
+
+        noteModal.addEventListener('click', (e) => {
+            if (e.target === noteModal) {
+                closeNoteModal();
+            }
+        });
+
+        // Initialize
+        loadData();
+    </script>
+</body>
+</html>
