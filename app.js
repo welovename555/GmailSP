@@ -393,4 +393,4 @@ if (searchToggleBtn && searchBar && searchInput) {
 }
 
 // Initialize
-loadData();
+loadData(); 
