@@ -30,9 +30,7 @@ let currentAppStates = {
     shopee: 'unknown',
     gemini: 'unknown',
     chatgpt: 'unknown',
-    tiktok: 'unknown',
-    otpgmail: 'unknown',
-    otpshopee: 'unknown'
+    tiktok: 'unknown'
 };
 
 let currentEditingId = null;
@@ -197,14 +195,6 @@ function createEmailCard(row) {
                     <span class="card-app-name">TikTok</span>
                     <span class="card-app-status" data-app="tiktok">${getStatusIcon(row.tiktok)}</span>
                 </div>
-                <div class="card-app-item">
-                    <span class="card-app-name">OTP Gmail</span>
-                    <span class="card-app-status" data-app="otpgmail">${getStatusIcon(row.otpgmail)}</span>
-                </div>
-                <div class="card-app-item">
-                    <span class="card-app-name">OTP Shopee</span>
-                    <span class="card-app-status" data-app="otpshopee">${getStatusIcon(row.otpshopee)}</span>
-                </div>
             </div>
         </div>
         <div class="card-note">
@@ -328,8 +318,6 @@ async function addEmail() {
                 gemini: currentAppStates.gemini,
                 chatgpt: currentAppStates.chatgpt,
                 tiktok: currentAppStates.tiktok,
-                otpgmail: currentAppStates.otpgmail,
-                otpshopee: currentAppStates.otpshopee,
                 note: note || null
             }])
             .select();
@@ -378,6 +366,18 @@ noteModal.addEventListener('click', (e) => {
     if (e.target === noteModal) {
         closeNoteModal();
     }
+});
+
+document.querySelectorAll('.note-quick-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const note = btn.dataset.note;
+        if (noteInput.value.trim() === '') {
+            noteInput.value = note;
+        } else if (!noteInput.value.includes(note)) {
+            noteInput.value += (noteInput.value.trim().endsWith(',') ? ' ' : ', ') + note;
+        }
+        noteInput.focus();
+    });
 });
 
 // Initialize

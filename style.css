@@ -586,6 +586,25 @@
             transform: translateY(-2px);
         }
 
+        .note-quick-buttons {
+            margin-top: 8px;
+            display: flex;
+            gap: 8px;
+        }
+        .note-quick-btn {
+            padding: 6px 16px;
+            border: none;
+            border-radius: 12px;
+            background: #e0e7ff;
+            color: #3730a3;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .note-quick-btn:hover {
+            background: #c7d2fe;
+        }
+
         /* iPhone 13 Pro Max specific optimizations */
         @media (max-width: 428px) {
             .container {
