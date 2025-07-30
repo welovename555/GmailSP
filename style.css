@@ -243,9 +243,8 @@
 
         .table-header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
+            justify-content: space-between;
         }
 
         .table-title {
@@ -620,5 +619,50 @@
             .app-name {
                 font-size: 0.65rem;
             }
+        }
+
+        .search-section {
+            margin-bottom: 16px;
+        }
+        .search-input {
+            width: 100%;
+            padding: 10px 16px;
+            border-radius: 12px;
+            border: 1px solid #d1d5db;
+            font-size: 1rem;
+            margin-bottom: 8px;
+            box-sizing: border-box;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .search-toggle-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.3rem;
+            padding: 4px 8px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        .search-toggle-btn:hover {
+            background: #f3f4f6;
+        }
+        .search-bar {
+            margin: 8px 0 0 0;
+            display: flex;
+            justify-content: flex-end;
+        }
+        .search-input {
+            width: 100%;
+            max-width: 240px;
+            padding: 8px 14px;
+            border-radius: 10px;
+            border: 1px solid #d1d5db;
+            font-size: 1rem;
+            box-sizing: border-box;
         }
     </style>

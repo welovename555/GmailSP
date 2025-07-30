@@ -61,7 +61,15 @@
             <div class="table-section">
                 <div class="table-header">
                     <h2 class="table-title">รายการอีเมล</h2>
-                    <button class="refresh-button" id="refreshButton">🔄 รีเฟรช</button>
+                    <div class="table-actions">
+                        <button class="search-toggle-btn" id="searchToggleBtn" title="ค้นหา">
+                            <span class="search-icon">🔍</span>
+                        </button>
+                        <button class="refresh-button" id="refreshButton">🔄 รีเฟรช</button>
+                    </div>
+                </div>
+                <div id="searchBar" class="search-bar" style="display:none;">
+                    <input type="text" id="searchInput" class="search-input" placeholder="ค้นหาอีเมลหรือหมายเหตุ...">
                 </div>
                 <div id="tableContainer">
                     <div class="loading">

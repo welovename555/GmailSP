@@ -17,6 +17,9 @@ const noteModal = document.getElementById('noteModal');
 const modalNoteInput = document.getElementById('modalNoteInput');
 const cancelNoteEdit = document.getElementById('cancelNoteEdit');
 const saveNoteEdit = document.getElementById('saveNoteEdit');
+const searchToggleBtn = document.getElementById('searchToggleBtn');
+const searchBar = document.getElementById('searchBar');
+const searchInput = document.getElementById('searchInput');
 
 // App status management
 const statusCycle = ['unknown', 'used', 'unused'];
@@ -34,15 +37,15 @@ let currentAppStates = {
 };
 
 let currentEditingId = null;
+let allEmailData = []; // เก็บข้อมูลทั้งหมด
 
-// Utility functions
 function showAlert(message, type = 'error') {
     const alertEl = document.createElement('div');
     alertEl.className = `alert ${type}`;
     alertEl.textContent = message;
     alertContainer.innerHTML = '';
     alertContainer.appendChild(alertEl);
-    
+
     setTimeout(() => {
         alertEl.remove();
     }, 5000);
@@ -59,21 +62,20 @@ function cycleAppStatus(app) {
     const currentIndex = statusCycle.indexOf(currentStatus);
     const nextIndex = (currentIndex + 1) % statusCycle.length;
     const nextStatus = statusCycle[nextIndex];
-    
+
     currentAppStates[app] = nextStatus;
-    
+
     const toggle = document.querySelector(`.form-section [data-app="${app}"]`);
-    updateAppToggle(toggle, nextStatus);
+    if (toggle) updateAppToggle(toggle, nextStatus);
 }
 
 function resetForm() {
     emailInput.value = '';
     noteInput.value = '';
-    
     Object.keys(currentAppStates).forEach(app => {
         currentAppStates[app] = 'unknown';
         const toggle = document.querySelector(`.form-section [data-app="${app}"]`);
-        updateAppToggle(toggle, 'unknown');
+        if (toggle) updateAppToggle(toggle, 'unknown');
     });
 }
 
@@ -96,15 +98,15 @@ async function updateAppStatus(emailId, app, currentStatus) {
     const currentIndex = statusCycle.indexOf(currentStatus);
     const nextIndex = (currentIndex + 1) % statusCycle.length;
     const nextStatus = statusCycle[nextIndex];
-    
+
     try {
         const { error } = await supabase
             .from('email_usage')
             .update({ [app]: nextStatus })
             .eq('id', emailId);
-        
+
         if (error) throw error;
-        
+
         await loadData();
     } catch (error) {
         showAlert(`ไม่สามารถอัปเดตสถานะ ${app}: ${error.message}`);
@@ -118,9 +120,9 @@ async function deleteEmail(emailId) {
                 .from('email_usage')
                 .delete()
                 .eq('id', emailId);
-            
+
             if (error) throw error;
-            
+
             showAlert('ลบข้อมูลอีเมลเรียบร้อยแล้ว!', 'success');
             await loadData();
         } catch (error) {
@@ -144,17 +146,17 @@ function closeNoteModal() {
 
 async function saveNote() {
     if (!currentEditingId) return;
-    
+
     const newNote = modalNoteInput.value.trim();
-    
+
     try {
         const { error } = await supabase
             .from('email_usage')
             .update({ note: newNote || null })
             .eq('id', currentEditingId);
-        
+
         if (error) throw error;
-        
+
         showAlert('บันทึกหมายเหตุเรียบร้อยแล้ว!', 'success');
         closeNoteModal();
         await loadData();
@@ -166,7 +168,7 @@ async function saveNote() {
 function createEmailCard(row) {
     const card = document.createElement('div');
     card.className = 'email-card';
-    
+
     card.innerHTML = `
         <div class="card-header">
             <h3 class="email-title">${row.email.replace('@gmail.com', '')}</h3>
@@ -206,7 +208,7 @@ function createEmailCard(row) {
     const noteContent = card.querySelector('.card-note-content');
     const editBtn = card.querySelector('.edit-btn');
     const deleteBtn = card.querySelector('.delete-btn');
-    
+
     const noteText = row.note || '';
     editBtn.addEventListener('click', () => openNoteModal(row.id, noteText));
     noteContent.addEventListener('click', () => openNoteModal(row.id, noteText));
@@ -215,7 +217,7 @@ function createEmailCard(row) {
     card.querySelectorAll('.card-app-status').forEach(statusEl => {
         const appName = statusEl.dataset.app;
         if (appName) {
-           statusEl.addEventListener('click', () => updateAppStatus(row.id, appName, row[appName]));
+            statusEl.addEventListener('click', () => updateAppStatus(row.id, appName, row[appName]));
         }
     });
 
@@ -234,48 +236,10 @@ async function loadData() {
             .order('created_at', { ascending: false });
 
         if (error) throw error;
-        
-        tableContainer.innerHTML = ''; 
 
-        if (data.length === 0) {
-            tableContainer.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-state-icon">📭</div>
-                    <h3>ยังไม่มีอีเมลที่ติดตาม</h3>
-                    <p>เพิ่มอีเมลแรกของคุณเพื่อเริ่มต้น!</p>
-                </div>`;
-            return;
-        }
+        allEmailData = data; // เก็บข้อมูลไว้ใช้ค้นหา
 
-        const cardContainer = document.createElement('div');
-        cardContainer.className = 'table-container';
-        tableContainer.appendChild(cardContainer);
-
-        const dataToShow = data.length > 10 ? data.slice(0, 10) : data;
-        dataToShow.forEach(row => {
-            const card = createEmailCard(row);
-            cardContainer.appendChild(card);
-        });
-
-        if (data.length > 10) {
-            const showMoreButton = document.createElement('button');
-            showMoreButton.textContent = `แสดงเพิ่มเติม (${data.length - 10} รายการ)`;
-            showMoreButton.className = 'add-button';
-            showMoreButton.style.marginTop = '16px';
-            showMoreButton.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
-            
-            showMoreButton.addEventListener('click', () => {
-                const hiddenData = data.slice(10);
-                hiddenData.forEach(row => {
-                    const card = createEmailCard(row);
-                    cardContainer.appendChild(card);
-                });
-                showMoreButton.remove();
-            }, { once: true });
-
-            tableContainer.appendChild(showMoreButton);
-        }
-
+        renderEmailCards(data);
     } catch (error) {
         console.error('Error loading data:', error);
         showAlert(`ไม่สามารถโหลดข้อมูล: ${error.message}`);
@@ -288,6 +252,27 @@ async function loadData() {
     } finally {
         window.scrollTo(0, scrollPosition);
     }
+}
+
+function renderEmailCards(data) {
+    tableContainer.innerHTML = '';
+    if (!data || data.length === 0) {
+        tableContainer.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">📭</div>
+                <h3>ยังไม่มีอีเมลที่ติดตาม</h3>
+                <p>เพิ่มอีเมลแรกของคุณเพื่อเริ่มต้น!</p>
+            </div>`;
+        return;
+    }
+    const cardContainer = document.createElement('div');
+    cardContainer.className = 'table-container';
+    tableContainer.appendChild(cardContainer);
+
+    data.forEach(row => {
+        const card = createEmailCard(row);
+        cardContainer.appendChild(card);
+    });
 }
 
 async function addEmail() {
@@ -379,6 +364,33 @@ document.querySelectorAll('.note-quick-btn').forEach(btn => {
         noteInput.focus();
     });
 });
+
+// ค้นหาแบบรวดเร็ว
+if (searchToggleBtn && searchBar && searchInput) {
+    searchToggleBtn.addEventListener('click', () => {
+        if (searchBar.style.display === 'none' || searchBar.style.display === '') {
+            searchBar.style.display = 'flex';
+            searchInput.focus();
+        } else {
+            searchBar.style.display = 'none';
+            searchInput.value = '';
+            renderEmailCards(allEmailData);
+        }
+    });
+
+    searchInput.addEventListener('input', () => {
+        const keyword = searchInput.value.trim().toLowerCase();
+        if (!keyword) {
+            renderEmailCards(allEmailData);
+            return;
+        }
+        const filtered = allEmailData.filter(row =>
+            row.email.toLowerCase().includes(keyword) ||
+            (row.note && row.note.toLowerCase().includes(keyword))
+        );
+        renderEmailCards(filtered);
+    });
+}
 
 // Initialize
 loadData();
