@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ติดตามการใช้งานอีเมล – Single File (Fixed)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+  /* === Inlined from style.css === */
+  :root {
+    --bg-primary: #0f0f23;
+    --bg-secondary: #1a1a2e;
+    --bg-tertiary: #16213e;
+    --accent-cyan: #00d4ff;
+    --accent-cyan-dark: #0099cc;
+    --accent-pink: #ff006e;
+    --accent-purple: #8338ec;
+    --accent-green: #00ff88;
+    --accent-green-dark: #00cc6a;
+    --accent-orange: #ffaa00;
+    --accent-orange-dark: #ff8800;
+    --accent-red: #ff3366;
+    --accent-red-dark: #cc1144;
+    --glass-white-10: rgba(255, 255, 255, 0.1);
+    --glass-white-15: rgba(255, 255, 255, 0.15);
+    --glass-white-20: rgba(255, 255, 255, 0.2);
+    --glass-white-05: rgba(255, 255, 255, 0.05);
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.8);
+    --text-muted: rgba(255, 255, 255, 0.6);
+    --font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans Thai', sans-serif;
+    --font-size-h1: 28px;
+    --font-size-h2: 22px;
+    --font-size-h3: 18px;
+    --font-size-body-lg: 16px;
+    --font-size-body: 14px;
+    --font-size-caption: 12px;
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    --space-xxl: 48px;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    --radius-xxl: 24px;
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.15);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.2);
+    --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.3);
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{font-size:16px;scroll-behavior:smooth}
+  body{font-family:var(--font-family);font-size:var(--font-size-body);line-height:1.5;color:var(--text-primary);background:var(--bg-primary);overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+  .background-container{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;overflow:hidden}
+  .gradient-bg{position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,var(--bg-primary) 0%,var(--bg-secondary) 35%,var(--bg-tertiary) 70%,var(--bg-primary) 100%);animation:gradientShift 20s ease-in-out infinite}
+  @keyframes gradientShift{0%,100%{background:linear-gradient(135deg,var(--bg-primary) 0%,var(--bg-secondary) 35%,var(--bg-tertiary) 70%,var(--bg-primary) 100%)}25%{background:linear-gradient(225deg,var(--bg-secondary) 0%,var(--bg-tertiary) 35%,var(--bg-primary) 70%,var(--bg-secondary) 100%)}50%{background:linear-gradient(315deg,var(--bg-tertiary) 0%,var(--bg-primary) 35%,var(--bg-secondary) 70%,var(--bg-tertiary) 100%)}75%{background:linear-gradient(45deg,var(--bg-primary) 0%,var(--bg-tertiary) 35%,var(--bg-secondary) 70%,var(--bg-primary) 100%)}}
+  .particles-container{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
+  .particle{position:absolute;width:2px;height:2px;background:var(--accent-cyan);border-radius:50%;opacity:.6;animation:float 15s linear infinite}
+  .particle:nth-child(2n){background:var(--accent-pink);animation-duration:20s}
+  .particle:nth-child(3n){background:var(--accent-green);animation-duration:25s}
+  @keyframes float{0%{transform:translateY(100vh) translateX(0) scale(0);opacity:0}10%{opacity:.6;transform:scale(1)}90%{opacity:.6}100%{transform:translateY(-100px) translateX(100px) scale(0);opacity:0}}
+  .app-container{max-width:420px;margin:0 auto;padding:var(--space-md);min-height:100vh;position:relative;z-index:1}
+  .glass-panel{background:var(--glass-white-05);backdrop-filter:blur(20px) saturate(180%);border:1px solid var(--glass-white-10);border-radius:var(--radius-xl);box-shadow:var(--shadow-lg);position:relative;overflow:hidden}
+  .glass-panel:before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--glass-white-20),transparent)}
+  .app-header{text-align:center;margin-bottom:var(--space-xl);animation:slideInDown .8s ease-out}
+  @keyframes slideInDown{from{opacity:0;transform:translateY(-30px)}to{opacity:1;transform:translateY(0)}}
+  .header-content{padding:var(--space-lg)}
+  .header-icon{display:inline-flex;align-items:center;justify-content:center;width:64px;height:64px;background:linear-gradient(135deg,var(--accent-cyan),var(--accent-cyan-dark));border-radius:var(--radius-lg);margin-bottom:var(--space-md);color:var(--text-primary);box-shadow:0 8px 32px rgba(0,212,255,.3);animation:pulse 2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{transform:scale(1);box-shadow:0 8px 32px rgba(0,212,255,.3)}50%{transform:scale(1.05);box-shadow:0 12px 40px rgba(0,212,255,.5)}}
+  .header-title{font-size:var(--font-size-h1);font-weight:700;line-height:1.2;margin-bottom:var(--space-sm);background:linear-gradient(135deg,var(--text-primary),var(--text-secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  .header-subtitle{font-size:var(--font-size-body);color:var(--text-secondary);font-weight:400}
+  .main-content{display:flex;flex-direction:column;gap:var(--space-xl)}
+  .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-lg)}
+  .section-title{font-size:var(--font-size-h2);font-weight:600;color:var(--text-primary)}
+  .section-actions{display:flex;gap:var(--space-sm)}
+  .form-section{padding:var(--space-lg);animation:slideInUp .8s ease-out .2s both}
+  @keyframes slideInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+  .email-form{display:flex;flex-direction:column;gap:var(--space-lg)}
+  .form-group{display:flex;flex-direction:column;gap:var(--space-sm)}
+  .form-label{font-size:var(--font-size-body);font-weight:600;color:var(--text-primary)}
+  .form-input{background:var(--glass-white-10);border:1px solid var(--glass-white-15);border-radius:var(--radius-md);padding:var(--space-md) var(--space-lg);font-size:var(--font-size-body);color:var(--text-primary);font-family:inherit;transition:all var(--transition-normal);backdrop-filter:blur(10px)}
+  .form-input::placeholder{color:var(--text-muted)}
+  .form-input:focus{outline:none;border-color:var(--accent-cyan);box-shadow:0 0 0 3px rgba(0,212,255,.2);transform:translateY(-2px);background:var(--glass-white-15)}
+  .email-input-container{position:relative;display:flex;align-items:center}
+  .email-suffix{position:absolute;right:var(--space-lg);color:var(--text-muted);pointer-events:none;font-size:var(--font-size-body)}
+  .note-input{resize:vertical;min-height:80px;font-family:inherit}
+  .quick-notes{display:flex;gap:var(--space-sm);flex-wrap:wrap}
+  .quick-note-btn{display:flex;align-items:center;gap:var(--space-xs);padding:var(--space-sm) var(--space-md);background:var(--glass-white-10);border:1px solid var(--glass-white-15);border-radius:var(--radius-md);color:var(--text-secondary);font-size:var(--font-size-caption);font-weight:500;cursor:pointer;transition:all var(--transition-fast);backdrop-filter:blur(10px)}
+  .quick-note-btn:hover{background:var(--glass-white-15);border-color:var(--accent-cyan);color:var(--text-primary);transform:translateY(-1px)}
+  .quick-note-icon{font-size:14px}
+  .app-toggles-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--space-md)}
+  .app-toggle{display:flex;flex-direction:column;align-items:center;gap:var(--space-sm);padding:var(--space-lg);background:var(--glass-white-10);border:1px solid var(--glass-white-15);border-radius:var(--radius-lg);cursor:pointer;transition:all var(--transition-normal);backdrop-filter:blur(10px);position:relative;overflow:hidden}
+  .app-toggle:before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,var(--glass-white-10),transparent);transition:left var(--transition-slow)}
+  .app-toggle:hover:before{left:100%}
+  .app-toggle:hover{border-color:var(--accent-cyan);transform:translateY(-4px) scale(1.02);box-shadow:0 8px 32px rgba(0,212,255,.2)}
+  .app-toggle-icon{color:var(--text-secondary);transition:all var(--transition-normal)}
+  .app-toggle:hover .app-toggle-icon{color:var(--accent-cyan);transform:scale(1.1)}
+  .app-toggle-name{font-size:var(--font-size-caption);font-weight:600;color:var(--text-primary);text-align:center}
+  .app-toggle-status{position:absolute;top:var(--space-sm);right:var(--space-sm)}
+  .status-indicator{width:12px;height:12px;border-radius:50%;position:relative;transition:all var(--transition-normal)}
+  .status-indicator.unknown{background:var(--text-muted);animation:pulse-subtle 2s ease-in-out infinite}
+  .status-indicator.used{background:var(--accent-green);box-shadow:0 0 12px rgba(0,255,136,.5)}
+  .status-indicator.unused{background:var(--accent-red);box-shadow:0 0 12px rgba(255,51,102,.5)}
+  @keyframes pulse-subtle{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.1)}}
+  .submit-btn{background:linear-gradient(135deg,var(--accent-cyan),var(--accent-cyan-dark));border:none;border-radius:var(--radius-lg);padding:var(--space-lg) var(--space-xl);font-size:var(--font-size-body-lg);font-weight:600;color:var(--text-primary);cursor:pointer;transition:all var(--transition-normal);position:relative;overflow:hidden;box-shadow:0 8px 32px rgba(0,212,255,.3)}
+  .submit-btn:before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);transition:left var(--transition-slow)}
+  .submit-btn:hover:before{left:100%}
+  .submit-btn:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,212,255,.5)}
+  .submit-btn:active{transform:translateY(-1px)}
+  .submit-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:0 4px 16px rgba(0,212,255,.2)}
+  .btn-loading{display:flex;align-items:center;gap:var(--space-sm)}
+  .action-btn{display:flex;align-items:center;justify-content:center;width:40px;height:40px;background:var(--glass-white-10);border:1px solid var(--glass-white-15);border-radius:var(--radius-md);color:var(--text-secondary);cursor:pointer;transition:all var(--transition-normal);backdrop-filter:blur(10px)}
+  .action-btn:hover{background:var(--glass-white-15);border-color:var(--accent-cyan);color:var(--accent-cyan);transform:translateY(-2px)}
+  .search-container{margin-bottom:var(--space-lg);animation:slideInDown var(--transition-normal)}
+  .search-input-container{position:relative;display:flex;align-items:center}
+  .search-icon{position:absolute;left:var(--space-md);color:var(--text-muted);z-index:1}
+  .search-input{width:100%;background:var(--glass-white-10);border:1px solid var(--glass-white-15);border-radius:var(--radius-md);padding:var(--space-md) var(--space-md) var(--space-md) 48px;font-size:var(--font-size-body);color:var(--text-primary);transition:all var(--transition-normal);backdrop-filter:blur(10px)}
+  .search-input::placeholder{color:var(--text-muted)}
+  .search-input:focus{outline:none;border-color:var(--accent-cyan);box-shadow:0 0 0 3px rgba(0,212,255,.2);background:var(--glass-white-15)}
+  .email-cards-container{display:flex;flex-direction:column;gap:var(--space-lg)}
+  .email-card{background:var(--glass-white-05);backdrop-filter:blur(20px) saturate(180%);border:1px solid var(--glass-white-10);border-radius:var(--radius-xl);padding:var(--space-lg);transition:all var(--transition-normal);position:relative;overflow:hidden;animation:slideInUp var(--transition-normal)}
+  .email-card:before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--glass-white-20),transparent)}
+  .email-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-xl);border-color:var(--glass-white-20)}
+  .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-md)}
+  .card-title{font-size:var(--font-size-h3);font-weight:600;color:var(--text-primary);margin:0}
+  .card-actions{display:flex;gap:var(--space-sm)}
+  .card-action-btn{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border:none;border-radius:var(--radius-md);cursor:pointer;transition:all var(--transition-normal);font-size:16px}
+  .card-action-btn.edit{background:linear-gradient(135deg,var(--accent-cyan),var(--accent-cyan-dark));color:var(--text-primary)}
+  .card-action-btn.delete{background:linear-gradient(135deg,var(--accent-red),var(--accent-red-dark));color:var(--text-primary)}
+  .card-action-btn:hover{transform:translateY(-2px) scale(1.05);box-shadow:var(--shadow-md)}
+  .card-date{font-size:var(--font-size-caption);color:var(--text-muted);margin-bottom:var(--space-md)}
+  .card-apps{margin-bottom:var(--space-md)}
+  .card-apps-title{font-size:var(--font-size-caption);font-weight:600;color:var(--text-secondary);margin-bottom:var(--space-sm);text-transform:uppercase;letter-spacing:.5px}
+  .card-apps-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--space-sm)}
+  .card-app-item{display:flex;align-items:center;justify-content:space-between;padding:var(--space-sm) var(--space-md);background:var(--glass-white-10);border-radius:var(--radius-md);transition:all var(--transition-fast)}
+  .card-app-item:hover{background:var(--glass-white-15)}
+  .card-app-name{font-size:var(--font-size-caption);font-weight:500;color:var(--text-secondary)}
+  .card-app-status{cursor:pointer;transition:all var(--transition-fast)}
+  .card-app-status:hover{transform:scale(1.2)}
+  .card-note{background:var(--glass-white-10);border-radius:var(--radius-md);padding:var(--space-md)}
+  .card-note-title{font-size:var(--font-size-caption);font-weight:600;color:var(--text-secondary);margin-bottom:var(--space-xs);text-transform:uppercase;letter-spacing:.5px}
+  .card-note-content{font-size:var(--font-size-caption);color:var(--text-muted);line-height:1.4;cursor:pointer;transition:all var(--transition-fast);word-break:break-word}
+  .card-note-content:hover{color:var(--text-secondary)}
+  .card-note-content.empty{font-style:italic;opacity:.7}
+  .loading-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:var(--space-xxl);color:var(--text-muted)}
+  .loading-spinner{width:24px;height:24px;border:3px solid var(--glass-white-15);border-top:3px solid var(--accent-cyan);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:var(--space-md)}
+  .loading-spinner.large{width:32px;height:32px;border-width:4px}
+  @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+  .loading-text{font-size:var(--font-size-body);color:var(--text-muted)}
+  .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:var(--space-xxl);text-align:center;color:var(--text-muted)}
+  .empty-state-icon{font-size:48px;margin-bottom:var(--space-lg);opacity:.7}
+  .empty-state h3{font-size:var(--font-size-h3);font-weight:600;color:var(--text-secondary);margin-bottom:var(--space-sm)}
+  .empty-state p{font-size:var(--font-size-body);color:var(--text-muted)}
+  .alert-container{margin-top:var(--space-lg)}
+  .alert{padding:var(--space-md) var(--space-lg);border-radius:var(--radius-md);font-size:var(--font-size-body);font-weight:500;backdrop-filter:blur(10px);border:1px solid;animation:slideInUp var(--transition-normal);margin-bottom:var(--space-md)}
+  .alert.success{background:rgba(0,255,136,.1);border-color:var(--accent-green);color:var(--accent-green)}
+  .alert.error{background:rgba(255,51,102,.1);border-color:var(--accent-red);color:var(--accent-red)}
+  .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;z-index:1000;animation:fadeIn var(--transition-normal);display:none}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  .modal-container{background:var(--glass-white-05);backdrop-filter:blur(20px) saturate(180%);border:1px solid var(--glass-white-15);border-radius:var(--radius-xl);width:90%;max-width:400px;box-shadow:var(--shadow-xl);animation:modalSlideIn var(--transition-normal);overflow:hidden}
+  @keyframes modalSlideIn{from{opacity:0;transform:scale(.9) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+  .modal-header{display:flex;align-items:center;justify-content:space-between;padding:var(--space-lg);border-bottom:1px solid var(--glass-white-10)}
+  .modal-title{font-size:var(--font-size-h3);font-weight:600;color:var(--text-primary);margin:0}
+  .modal-close-btn{display:flex;align-items:center;justify-content:center;width:32px;height:32px;background:var(--glass-white-10);border:1px solid var(--glass-white-15);border-radius:var(--radius-md);color:var(--text-secondary);cursor:pointer;transition:all var(--transition-fast)}
+  .modal-close-btn:hover{background:var(--glass-white-15);color:var(--text-primary)}
+  .modal-body{padding:var(--space-lg)}
+  .modal-textarea{width:100%;background:var(--glass-white-10);border:1px solid var(--glass-white-15);border-radius:var(--radius-md);padding:var(--space-md);font-size:var(--font-size-body);color:var(--text-primary);font-family:inherit;resize:vertical;min-height:100px;transition:all var(--transition-normal)}
+  .modal-textarea::placeholder{color:var(--text-muted)}
+  .modal-textarea:focus{outline:none;border-color:var(--accent-cyan);box-shadow:0 0 0 3px rgba(0,212,255,.2);background:var(--glass-white-15)}
+  .modal-footer{display:flex;gap:var(--space-md);padding:var(--space-lg);border-top:1px solid var(--glass-white-10)}
+  .modal-btn{flex:1;padding:var(--space-md) var(--space-lg);border:none;border-radius:var(--radius-md);font-size:var(--font-size-body);font-weight:600;cursor:pointer;transition:all var(--transition-normal)}
+  .modal-btn.primary{background:linear-gradient(135deg,var(--accent-cyan),var(--accent-cyan-dark));color:var(--text-primary)}
+  .modal-btn.secondary{background:var(--glass-white-10);border:1px solid var(--glass-white-15);color:var(--text-secondary)}
+  .modal-btn:hover{transform:translateY(-2px)}
+  .modal-btn.primary:hover{box-shadow:0 8px 32px rgba(0,212,255,.3)}
+  .modal-btn.secondary:hover{background:var(--glass-white-15);color:var(--text-primary)}
+  @media (max-width:480px){.app-container{padding:var(--space-sm)}.form-section,.email-card{padding:var(--space-md)}.app-toggles-grid{grid-template-columns:repeat(2,1fr);gap:var(--space-sm)}.app-toggle{padding:var(--space-md)}.card-apps-grid{grid-template-columns:1fr}.modal-container{width:95%;margin:var(--space-md)}}
+  @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}.particle{display:none}.gradient-bg{animation:none}}
+  button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent-cyan);outline-offset:2px}
+  @media (prefers-contrast:high){:root{--glass-white-10:rgba(255,255,255,.2);--glass-white-15:rgba(255,255,255,.3);--glass-white-20:rgba(255,255,255,.4)}}
+  </style>
+
+  <!-- Supabase (UMD) -->
+  <script defer src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <!-- Animated Background -->
+  <div class="background-container">
+    <div class="gradient-bg"></div>
+    <div class="particles-container" id="particlesContainer"></div>
+  </div>
+
+  <div class="app-container">
+    <header class="app-header">
+      <div class="header-content">
+        <div class="header-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" stroke-width="2" fill="none"/>
+            <polyline points="22,6 12,13 2,6" stroke="currentColor" stroke-width="2" fill="none"/>
+          </svg>
+        </div>
+        <h1 class="header-title">ติดตามการใช้งานอีเมล</h1>
+        <p class="header-subtitle">จัดการและติดตามการใช้งานอีเมลในแอปต่างๆ</p>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <section class="form-section glass-panel">
+        <div class="section-header">
+          <h2 class="section-title">เพิ่มอีเมลใหม่</h2>
+        </div>
+
+        <form class="email-form" id="emailForm">
+          <div class="form-group">
+            <label for="emailInput" class="form-label">ที่อยู่อีเมล</label>
+            <div class="email-input-container">
+              <input type="text" id="emailInput" class="form-input email-input" placeholder="กรอกชื่อผู้ใช้" autocomplete="off" />
+              <span class="email-suffix">@gmail.com</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="noteInput" class="form-label">หมายเหตุ (ไม่บังคับ)</label>
+            <textarea id="noteInput" class="form-input note-input" placeholder="เพิ่มหมายเหตุเกี่ยวกับอีเมลนี้..." rows="3"></textarea>
+            <div class="quick-notes">
+              <button type="button" class="quick-note-btn" data-note="OTPGmail✅"><span class="quick-note-icon">📧</span>OTPGmail</button>
+              <button type="button" class="quick-note-btn" data-note="OTPShopee✅"><span class="quick-note-icon">🛒</span>OTPShopee</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">สถานะการใช้งานแอป</label>
+            <div class="app-toggles-grid">
+              <div class="app-toggle" data-app="shopee" data-status="unknown">
+                <div class="app-toggle-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M7 4V2C7 1.45 7.45 1 8 1H16C16.55 1 17 1.45 17 2V4H20C20.55 4 21 4.45 21 5S20.55 6 20 6H19V19C19 20.1 18.1 21 17 21H7C5.9 21 5 20.1 5 19V6H4C3.45 6 3 5.55 3 5S3.45 4 4 4H7ZM9 3V4H15V3H9ZM7 6V19H17V6H7Z" fill="currentColor"/></svg>
+                </div>
+                <span class="app-toggle-name">Shopee</span>
+                <div class="app-toggle-status"><div class="status-indicator unknown"></div></div>
+              </div>
+              <div class="app-toggle" data-app="gemini" data-status="unknown">
+                <div class="app-toggle-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z" fill="currentColor"/></svg>
+                </div>
+                <span class="app-toggle-name">Gemini</span>
+                <div class="app-toggle-status"><div class="status-indicator unknown"></div></div>
+              </div>
+              <div class="app-toggle" data-app="chatgpt" data-status="unknown">
+                <div class="app-toggle-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1L13.5 2.5L16.17 5.17L10.59 10.75C10.21 10.28 9.68 10 9 10C7.9 10 7 10.9 7 12S7.9 14 9 14C9.68 14 10.21 13.72 10.59 13.25L16.17 18.83L13.5 21.5L15 23L21 17V15H19L16.41 17.59L10.83 12.01L16.41 6.41L19 9H21Z" fill="currentColor"/></svg>
+                </div>
+                <span class="app-toggle-name">ChatGPT</span>
+                <div class="app-toggle-status"><div class="status-indicator unknown"></div></div>
+              </div>
+              <div class="app-toggle" data-app="tiktok" data-status="unknown">
+                <div class="app-toggle-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M19.59 6.69A4.83 4.83 0 0 1 17 2.2V2H12.44V15.84C12.44 18.11 10.62 19.94 8.35 19.94C6.08 19.94 4.26 18.11 4.26 15.84C4.26 13.57 6.08 11.74 8.35 11.74C8.93 11.74 9.46 11.91 9.93 12.18V7.5C9.46 7.44 8.91 7.41 8.35 7.41C3.74 7.41 0 11.15 0 15.84C0 20.53 3.74 24.27 8.35 24.27C12.96 24.27 16.7 20.53 16.7 15.84V9.09C18.17 10.09 19.96 10.68 21.94 10.68V6.35C21.37 6.35 20.65 6.08 19.59 6.69Z" fill="currentColor"/></svg>
+                </div>
+                <span class="app-toggle-name">TikTok</span>
+                <div class="app-toggle-status"><div class="status-indicator unknown"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="submit-btn" id="submitBtn">
+            <span class="btn-text">เพิ่มอีเมล</span>
+            <div class="btn-loading" style="display:none"><div class="loading-spinner"></div><span>กำลังเพิ่ม...</span></div>
+          </button>
+        </form>
+
+        <div class="alert-container" id="alertContainer"></div>
+      </section>
+
+      <section class="list-section">
+        <div class="section-header">
+          <h2 class="section-title">รายการอีเมล</h2>
+          <div class="section-actions">
+            <button type="button" class="action-btn search-btn" id="searchToggleBtn" title="ค้นหา">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2"/></svg>
+            </button>
+            <button type="button" class="action-btn refresh-btn" id="refreshBtn" title="รีเฟรช">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" stroke="currentColor" stroke-width="2"/>
+                <path d="M21 3v5h-5" stroke="currentColor" stroke-width="2"/>
+                <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" stroke="currentColor" stroke-width="2"/>
+                <path d="M8 16H3v5" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="search-container" id="searchContainer" style="display:none">
+          <div class="search-input-container">
+            <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2"/></svg>
+            <input type="text" id="searchInput" class="search-input" placeholder="ค้นหาอีเมลหรือหมายเหตุ..." />
+          </div>
+        </div>
+
+        <div class="email-cards-container" id="emailCardsContainer">
+          <div class="loading-state"><div class="loading-spinner large"></div><span class="loading-text">กำลังโหลดข้อมูล...</span></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Note Edit Modal -->
+  <div class="modal-overlay" id="noteModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 class="modal-title">แก้ไขหมายเหตุ</h3>
+        <button type="button" class="modal-close-btn" id="modalCloseBtn">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18" stroke="currentColor" stroke-width="2"/><path d="M6 6l12 12" stroke="currentColor" stroke-width="2"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <textarea id="modalNoteInput" class="modal-textarea" placeholder="กรอกหมายเหตุ..." rows="4"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="modal-btn secondary" id="cancelNoteEdit">ยกเลิก</button>
+        <button type="button" class="modal-btn primary" id="saveNoteEdit">บันทึก</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Modal (custom, replaces window.confirm) -->
+  <div class="modal-overlay" id="confirmModal" style="display:none">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 class="modal-title">ยืนยันการลบ</h3>
+        <button type="button" class="modal-close-btn" id="confirmCloseBtn">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18" stroke="currentColor" stroke-width="2"/><path d="M6 6l12 12" stroke="currentColor" stroke-width="2"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="confirmText" style="color:var(--text-secondary);line-height:1.6"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="modal-btn secondary" id="confirmCancel">ยกเลิก</button>
+        <button type="button" class="modal-btn primary" id="confirmOk">ยืนยัน</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  // ---- App Script (fixed + custom confirm dialog, search & delete working, no-scroll jump) ----
+  (function(){
+    const statusCycle = ['unknown', 'used', 'unused'];
+    const statusIcons = { unknown: '⚪', used: '✅', unused: '❌' };
+    const currentAppStates = { shopee: 'unknown', gemini: 'unknown', chatgpt: 'unknown', tiktok: 'unknown' };
+
+    function getNextStatus(s){ const i = statusCycle.indexOf(s); return statusCycle[(i+1) % statusCycle.length]; }
+    function getStatusIcon(s){ return statusIcons[s] || '⚪'; }
+
+    function showAlert(message, type = 'error'){
+      const alertContainer = document.getElementById('alertContainer');
+      const el = document.createElement('div');
+      el.className = `alert ${type}`; el.textContent = message;
+      alertContainer.innerHTML = ''; alertContainer.appendChild(el);
+      setTimeout(()=>{ el.style.animation = 'slideOutUp 0.3s ease-in forwards'; setTimeout(()=> el.remove(), 300); }, 4000);
+    }
+
+    // Add slideOutUp keyframes once
+    (function addSlideOutKeyframes(){
+      const style = document.createElement('style');
+      style.textContent = `@keyframes slideOutUp{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-20px)}}`;
+      document.head.appendChild(style);
+    })();
+
+    // Particle Background
+    class ParticleSystem {
+      constructor(){ this.container = document.getElementById('particlesContainer'); this.particles=[]; this.maxParticles = (window.innerWidth < 768) ? 25 : 50; this.init(); }
+      init(){ this.createParticles(); this.animate(); }
+      createParticles(){ for(let i=0;i<this.maxParticles;i++) this.createParticle(); }
+      createParticle(){ const p = document.createElement('div'); p.className='particle'; const startX=Math.random()*window.innerWidth; const startY=window.innerHeight+10; const duration = 15+Math.random()*10; p.style.left=startX+'px'; p.style.top=startY+'px'; p.style.animationDuration=duration+'s'; p.style.animationDelay=(Math.random()*5)+'s'; this.container.appendChild(p); this.particles.push(p); setTimeout(()=>{ if(p.parentNode){ p.parentNode.removeChild(p); this.particles=this.particles.filter(x=>x!==p); this.createParticle(); } }, (duration+5)*1000); }
+      animate(){ setInterval(()=>{ if(this.particles.length < this.maxParticles) this.createParticle(); }, 1000); }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      new ParticleSystem();
+
+      // DOM
+      const emailForm = document.getElementById('emailForm');
+      const emailInput = document.getElementById('emailInput');
+      const noteInput = document.getElementById('noteInput');
+      const submitBtn = document.getElementById('submitBtn');
+      const refreshBtn = document.getElementById('refreshBtn');
+      const searchToggleBtn = document.getElementById('searchToggleBtn');
+      const searchContainer = document.getElementById('searchContainer');
+      const searchInput = document.getElementById('searchInput');
+      const emailCardsContainer = document.getElementById('emailCardsContainer');
+      const noteModal = document.getElementById('noteModal');
+      const modalNoteInput = document.getElementById('modalNoteInput');
+      const modalCloseBtn = document.getElementById('modalCloseBtn');
+      const cancelNoteEdit = document.getElementById('cancelNoteEdit');
+      const saveNoteEdit = document.getElementById('saveNoteEdit');
+      const quickNoteBtns = document.querySelectorAll('.quick-note-btn');
+      const appToggles = document.querySelectorAll('.app-toggle');
+
+      // Confirm modal elements
+      const confirmModal = document.getElementById('confirmModal');
+      const confirmText = document.getElementById('confirmText');
+      const confirmOk = document.getElementById('confirmOk');
+      const confirmCancel = document.getElementById('confirmCancel');
+      const confirmCloseBtn = document.getElementById('confirmCloseBtn');
+
+      // Supabase
+      const supabaseUrl = 'https://tuyttwketzbewvqqqdum.supabase.co';
+      const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR1eXR0d2tldHpiZXd2cXFxZHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxODM4MDAsImV4cCI6MjA2ODc1OTgwMH0.3S9meIoh6ULCH2L4-R_wzud2rw70U8lJzs4gj9028fY';
+      if (!window.supabase){ showAlert('ไม่สามารถโหลด Supabase SDK ได้'); return; }
+      const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+      let allEmailData = [];
+      let isSearchVisible = false;
+      let currentEditingId = null;
+
+      function updateAppToggle(el, status){ el.dataset.status = status; const ind = el.querySelector('.status-indicator'); ind.className = `status-indicator ${status}`; }
+
+      function resetForm(){ emailInput.value=''; noteInput.value=''; Object.keys(currentAppStates).forEach(app=>{ currentAppStates[app]='unknown'; const el = document.querySelector(`.app-toggle[data-app="${app}"]`); if (el) updateAppToggle(el, 'unknown'); }); submitBtn.disabled=false; submitBtn.querySelector('.btn-text').style.display='block'; submitBtn.querySelector('.btn-loading').style.display='none'; }
+
+      function formatDate(dt){ const d = new Date(dt); if (isNaN(d)) return '-'; return d.toLocaleDateString('th-TH', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }); }
+
+      function openNoteModal(id, note){ currentEditingId = id; modalNoteInput.value = note || ''; noteModal.style.display = 'flex'; setTimeout(()=> modalNoteInput.focus(), 80); }
+      function closeNoteModal(){ noteModal.style.display='none'; currentEditingId = null; modalNoteInput.value=''; }
+
+      // ---- Helper: lock & restore scroll while doing async UI refresh ----
+      async function withScrollLock(task){
+        const x = window.scrollX, y = window.scrollY;
+        const prevBehavior = document.documentElement.style.scrollBehavior;
+        const prevMinHeight = emailCardsContainer.style.minHeight;
+        document.documentElement.style.scrollBehavior = 'auto';
+        const h = emailCardsContainer.offsetHeight; if (h) emailCardsContainer.style.minHeight = h + 'px';
+        try { await task(); }
+        finally {
+          window.scrollTo(x, y);
+          emailCardsContainer.style.minHeight = prevMinHeight;
+          document.documentElement.style.scrollBehavior = prevBehavior;
+        }
+      }
+
+      // ---- Custom confirm (works in iframe / preview) ----
+      function askConfirm(message){
+        return new Promise(resolve => {
+          confirmText.textContent = message;
+          confirmModal.style.display = 'flex';
+
+          const cleanup = () => {
+            confirmModal.style.display = 'none';
+            confirmOk.removeEventListener('click', onOk);
+            confirmCancel.removeEventListener('click', onCancel);
+            confirmCloseBtn.removeEventListener('click', onCancel);
+            confirmModal.removeEventListener('click', onBackdrop);
+            document.removeEventListener('keydown', onEsc);
+          };
+          const onOk = () => { cleanup(); resolve(true); };
+          const onCancel = () => { cleanup(); resolve(false); };
+          const onBackdrop = (e) => { if (e.target === confirmModal) onCancel(); };
+          const onEsc = (e) => { if (e.key === 'Escape'){ e.preventDefault(); onCancel(); } };
+
+          confirmOk.addEventListener('click', onOk);
+          confirmCancel.addEventListener('click', onCancel);
+          confirmCloseBtn.addEventListener('click', onCancel);
+          confirmModal.addEventListener('click', onBackdrop);
+          setTimeout(()=> confirmOk.focus(), 50);
+          document.addEventListener('keydown', onEsc);
+        });
+      }
+
+      async function saveNote(){
+        if(!currentEditingId) return;
+        const newNote = modalNoteInput.value.trim();
+        const { error } = await supabase.from('email_usage').update({ note: newNote || null }).eq('id', currentEditingId);
+        if (error){ showAlert(`ไม่สามารถบันทึกหมายเหตุ: ${error.message}`); return; }
+        showAlert('บันทึกหมายเหตุเรียบร้อยแล้ว!', 'success');
+        closeNoteModal();
+        await withScrollLock(loadData);
+      }
+
+      function createEmailCard(row){
+        const card = document.createElement('div'); card.className='email-card'; card.style.animationDelay='0.1s';
+        card.innerHTML = `
+          <div class="card-header">
+            <h3 class="card-title">${row.email.replace('@gmail.com','')}</h3>
+            <div class="card-actions">
+              <button type="button" class="card-action-btn edit" title="แก้ไขหมายเหตุ">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="2"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2"/></svg>
+              </button>
+              <button type="button" class="card-action-btn delete" title="ลบอีเมล">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><polyline points="3,6 5,6 21,6" stroke="currentColor" stroke-width="2"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="2"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="card-date">วันที่สมัคร: ${formatDate(row.created_at)}</div>
+          <div class="card-apps">
+            <div class="card-apps-title">แอปที่ลงทะเบียน</div>
+            <div class="card-apps-grid">
+              ${['shopee','gemini','chatgpt','tiktok'].map(app => `
+                <div class="card-app-item">
+                  <span class="card-app-name">${app.charAt(0).toUpperCase()+app.slice(1)}</span>
+                  <span class="card-app-status" data-app="${app}" data-status="${row[app] || 'unknown'}" data-email-id="${row.id}">${getStatusIcon(row[app])}</span>
+                </div>`).join('')}
+            </div>
+          </div>
+          <div class="card-note">
+            <div class="card-note-title">หมายเหตุ</div>
+            <div class="card-note-content ${row.note ? '' : 'empty'}">${row.note || 'ไม่มีหมายเหตุ'}</div>
+          </div>`;
+
+        // Hooks
+        card.querySelector('.edit').addEventListener('click', ()=> openNoteModal(row.id, row.note || ''));
+        card.querySelector('.delete').addEventListener('click', ()=> deleteEmail(row.id, row.email));
+        card.querySelector('.card-note-content').addEventListener('click',()=> openNoteModal(row.id, row.note || ''));
+        card.querySelectorAll('.card-app-status').forEach(el => {
+          el.addEventListener('click', async () => {
+            const app = el.getAttribute('data-app');
+            const cur = el.getAttribute('data-status') || 'unknown';
+            const next = getNextStatus(cur);
+            await updateAppStatus(row.id, app, next, el);
+          });
+        });
+        return card;
+      }
+
+      async function updateAppStatus(emailId, app, nextStatus, el){
+        const { error } = await supabase.from('email_usage').update({ [app]: nextStatus }).eq('id', emailId);
+        if (error){ showAlert(`ไม่สามารถอัปเดตสถานะ ${app}: ${error.message}`); return; }
+        // Optimistic UI (no full reload, no scroll jump)
+        if (el){ el.setAttribute('data-status', nextStatus); el.textContent = getStatusIcon(nextStatus); }
+        const idx = allEmailData.findIndex(r => r.id === emailId);
+        if (idx > -1){ allEmailData[idx][app] = nextStatus; }
+        showAlert(`อัปเดตสถานะ ${app} เป็น ${nextStatus} แล้ว`, 'success');
+      }
+
+      async function deleteEmail(id, email){
+        const ok = await askConfirm(`คุณต้องการลบอีเมล “${email}” หรือไม่? การทำรายการนี้ไม่สามารถย้อนกลับได้`);
+        if (!ok) return;
+        try {
+          const { error } = await supabase.from('email_usage').delete().eq('id', id);
+          if (error) throw error;
+          // Optimistic remove + keep scroll position
+          await withScrollLock(async () => {
+            allEmailData = allEmailData.filter(r => r.id !== id);
+            renderEmailCards(allEmailData);
+          });
+          showAlert('ลบข้อมูลอีเมลเรียบร้อยแล้ว!', 'success');
+        } catch(err){
+          console.error('Delete error', err);
+          showAlert(`ไม่สามารถลบข้อมูล: ${err.message || err}`, 'error');
+        }
+      }
+
+      function renderEmailCards(data){
+        emailCardsContainer.innerHTML='';
+        if(!data || data.length===0){
+          emailCardsContainer.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📭</div><h3>ยังไม่มีอีเมลที่ติดตาม</h3><p>เพิ่มอีเมลแรกของคุณเพื่อเริ่มต้น!</p></div>`;
+          return;
+        }
+        data.forEach((row,i)=>{ const c = createEmailCard(row); c.style.animationDelay = `${i*0.1}s`; emailCardsContainer.appendChild(c); });
+      }
+
+      async function loadData(){
+        emailCardsContainer.innerHTML = `<div class="loading-state"><div class=\"loading-spinner large\"></div><span class=\"loading-text\">กำลังโหลดข้อมูล...</span></div>`;
+        const { data, error } = await supabase.from('email_usage').select('*').order('created_at', { ascending: false });
+        if (error){ console.error(error); showAlert(`ไม่สามารถโหลดข้อมูล: ${error.message}`); emailCardsContainer.innerHTML = `<div class=\"empty-state\"><div class=\"empty-state-icon\">⚠️</div><h3>ไม่สามารถโหลดข้อมูลได้</h3><p>${error.message}</p></div>`; return; }
+        allEmailData = data || []; renderEmailCards(allEmailData);
+      }
+
+      async function addEmail(){
+        const username = (emailInput.value || '').trim(); const note = (noteInput.value || '').trim();
+        if (!username){ showAlert('กรุณากรอกชื่อผู้ใช้อีเมล'); emailInput.focus(); return; }
+        if (username.includes('@')){ showAlert('กรุณากรอกเฉพาะชื่อผู้ใช้ (ก่อน @gmail.com)'); emailInput.focus(); return; }
+        const email = `${username}@gmail.com`;
+        try {
+          submitBtn.disabled = true; submitBtn.querySelector('.btn-text').style.display='none'; submitBtn.querySelector('.btn-loading').style.display='flex';
+          const { error } = await supabase.from('email_usage').insert([{
+            email,
+            shopee: currentAppStates.shopee,
+            gemini: currentAppStates.gemini,
+            chatgpt: currentAppStates.chatgpt,
+            tiktok: currentAppStates.tiktok,
+            note: note || null
+          }]);
+          if (error) throw error;
+          showAlert('เพิ่มอีเมลเรียบร้อยแล้ว!', 'success'); resetForm(); await withScrollLock(loadData);
+        } catch(err){ console.error(err); showAlert(`ไม่สามารถเพิ่มอีเมล: ${err.message}`); }
+        finally { submitBtn.disabled=false; submitBtn.querySelector('.btn-text').style.display='block'; submitBtn.querySelector('.btn-loading').style.display='none'; }
+      }
+
+      function toggleSearch(){
+        isSearchVisible = !isSearchVisible;
+        searchContainer.style.display = isSearchVisible ? 'block' : 'none';
+        if (isSearchVisible){ setTimeout(()=> searchInput.focus(), 80); }
+        else { searchInput.value=''; renderEmailCards(allEmailData); }
+      }
+
+      function performSearch(){
+        const kw = (searchInput.value || '').trim().toLowerCase();
+        if(!kw){ renderEmailCards(allEmailData); return; }
+        const filtered = allEmailData.filter(r =>
+          (r.email && r.email.toLowerCase().includes(kw)) ||
+          (r.note && String(r.note).toLowerCase().includes(kw))
+        );
+        renderEmailCards(filtered);
+      }
+
+      // Listeners
+      appToggles.forEach(tg => { tg.addEventListener('click', () => { const app = tg.dataset.app; const cur = tg.dataset.status || 'unknown'; const next = getNextStatus(cur); currentAppStates[app] = next; updateAppToggle(tg, next); }); });
+      emailForm.addEventListener('submit', (e)=>{ e.preventDefault(); addEmail(); });
+      quickNoteBtns.forEach(btn => btn.addEventListener('click', ()=>{ const t = btn.dataset.note; if (noteInput.value.trim()===''){ noteInput.value = t; } else if (!noteInput.value.includes(t)){ noteInput.value += (noteInput.value.trim().endsWith(',') ? ' ' : ', ') + t; } noteInput.focus(); }));
+      searchToggleBtn.addEventListener('click', toggleSearch);
+      searchInput.addEventListener('input', performSearch);
+      searchInput.addEventListener('keydown', (e)=>{ if (e.key === 'Escape'){ e.preventDefault(); isSearchVisible = true; toggleSearch(); }});
+      refreshBtn.addEventListener('click', ()=> withScrollLock(loadData));
+      modalCloseBtn.addEventListener('click', closeNoteModal);
+      cancelNoteEdit.addEventListener('click', closeNoteModal);
+      saveNoteEdit.addEventListener('click', saveNote);
+      noteModal.addEventListener('click', (e)=>{ if (e.target === noteModal) closeNoteModal(); });
+      modalNoteInput.addEventListener('keydown', (e)=>{ if ((e.key === 'Enter') && (e.ctrlKey || e.metaKey)){ e.preventDefault(); saveNote(); } if (e.key==='Escape'){ closeNoteModal(); }});
+
+      // Initial load
+      await loadData();
+    });
+  })();
+  </script>
+</body>
+</html>
